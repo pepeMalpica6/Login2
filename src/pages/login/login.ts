@@ -1,12 +1,13 @@
-
 import { Component } from '@angular/core';
 import { NavController, AlertController, LoadingController } from 'ionic-angular';
 import { Auth, User, UserDetails, IDetailedError } from '@ionic/cloud-angular';
 import { HomePage } from '../home/home';
-
+import { LoginProvider } from '../../providers/login-provider';
+//csrf 
 @Component({
   selector: 'page-login',
-  templateUrl: 'login.html'
+  templateUrl: 'login.html',
+  providers: [LoginProvider]
 })
 export class LoginPage {
 
@@ -14,8 +15,9 @@ export class LoginPage {
   email:string = '';
   password:string = '';
   name:string = '';
+  public data: any;
 
-  constructor(public navCtrl: NavController, public auth:Auth, public user: User, public alertCtrl: AlertController, public loadingCtrl:LoadingController) {}
+  constructor(public navCtrl: NavController, public auth:Auth, public user: User, public alertCtrl: AlertController, public loadingCtrl:LoadingController, public loginProvider: LoginProvider) {}
 
   ionViewDidLoad() {
     console.log('Hello LoginPage Page');
@@ -43,11 +45,19 @@ export class LoginPage {
         content: "Logging in..."
       });
       loader.present();
+      //mandar datos al server o.O
+      
+      this.loginProvider.sendData(this.email, this.password)
+      .then(data => {
+        this.data = data;
+        console.log('REtorno: ' + this.data.ok);
+      });
+      
       
       this.auth.login('basic', {'email':this.email, 'password':this.password}).then(() => {
         console.log('ok i guess?');
         loader.dismissAll();
-        this.navCtrl.setRoot(HomePage);        
+        this.navCtrl.setRoot(HomePage);                
       }, (err) => {
         loader.dismissAll();
         console.log(err.message);
