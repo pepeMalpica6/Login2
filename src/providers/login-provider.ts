@@ -24,7 +24,7 @@ export class LoginProvider {
 
 
   sendData(email: String, psw: String){
-    let body = JSON.stringify({ email:email, password:psw });
+    let body = this.jsonToURLEncoded({ email: email, password: psw });
     let url = 'http://frontfree.localhost/api/app/guest/login';
     let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
     let options = new RequestOptions({ headers: headers });
@@ -40,6 +40,12 @@ export class LoginProvider {
           resolve(this.data);
         });
     });
+  }
+  //convert a json object to the url encoded format of key=value&anotherkye=anothervalue
+  private jsonToURLEncoded(jsonString){
+    return Object.keys(jsonString).map(function(key){
+      return 'Customer[' + encodeURIComponent(key) + ']=' + encodeURIComponent(jsonString[key]);
+    }).join('&');
   }
 
 }

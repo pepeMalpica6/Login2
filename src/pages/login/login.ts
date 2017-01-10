@@ -15,7 +15,7 @@ export class LoginPage {
   email:string = '';
   password:string = '';
   name:string = '';
-  public data: any;
+  dataRespuesta: any;
 
   constructor(public navCtrl: NavController, public auth:Auth, public user: User, public alertCtrl: AlertController, public loadingCtrl:LoadingController, public loginProvider: LoginProvider) {}
 
@@ -46,32 +46,35 @@ export class LoginPage {
       });
       loader.present();
       //mandar datos al server o.O
-      
       this.loginProvider.sendData(this.email, this.password)
-      .then(data => {
-        this.data = data;
-        console.log('REtorno: ' + this.data.ok);
-      });
-      
-      
-      this.auth.login('basic', {'email':this.email, 'password':this.password}).then(() => {
-        console.log('ok i guess?');
-        loader.dismissAll();
-        this.navCtrl.setRoot(HomePage);                
-      }, (err) => {
-        loader.dismissAll();
-        console.log(err.message);
+        .then(data => {
+          this.dataRespuesta = data.ok;
+          console.log(data.ok);
+          if( this.dataRespuesta == true ){
+            console.log('<><<> Es falsooooo');
+            this.auth.login('basic', {'email':this.email, 'password':this.password}).then(() => {
+                console.log('ok i guess?');
+                loader.dismissAll();
+                this.navCtrl.setRoot(HomePage);                
+              }, (err) => {
+                loader.dismissAll();
+                console.log(err.message);
 
-        let errors = '';
-        if(err.message === 'UNPROCESSABLE ENTITY') errors += 'Email isn\'t valid.<br/>';
-        if(err.message === 'UNAUTHORIZED') errors += 'Password is required.<br/>';
+                let errors = '';
+                if(err.message === 'UNPROCESSABLE ENTITY') errors += 'Email isn\'t valid.<br/>';
+                if(err.message === 'UNAUTHORIZED') errors += 'Password is required.<br/>';
 
-        let alert = this.alertCtrl.create({
-          title:'Login Error', 
-          subTitle:errors,
-          buttons:['OK']
-        });
-        alert.present();
+                let alert = this.alertCtrl.create({
+                  title:'Login Error', 
+                  subTitle:errors,
+                  buttons:['OK']
+                });
+                alert.present();
+            }); 
+          }else {
+            loader.dismissAll();
+            this.showLogin = true;
+          }
       });
     } else {
       this.showLogin = true;
